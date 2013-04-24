@@ -1,0 +1,58 @@
+Shashkrid
+
+The name of this abstract strategy game is a neologism, from Sanskrit SaS, "six" and krIDA, "game".
+It is a reference to the original Indian Chaturanga game, from which the modern variants of chess derive.
+
+The game is played on a diamond-shaped 11 * 11 hex grid.
+At the beginning of the game, each player may place their pieces on any point in their half of the grid, excluding the neutral sixth line in the middle.
+This initial deployment is hidden from the other player.
+Each player may make up to three moves with three differen pieces per turn.
+An opponent's piece may be captured if the sum of the attack values of one's own pieces adjacent to it, including the attacking piece, is greater or equal to the defence value of the target.
+The attacker takes the captured piece's place.
+A player may forfeit his three moves in a turn to "drop" a piece previously captured from the opponent in their "zone of control".
+The zone of control in each lane extends from the original side of the player to the furthest piece owner by the player, forming a line which may not be interrupted by an enemy piece.
+A game ends in one of four ways.
+1. the maximum number of turns has been played (22)
+2. a player has lost all their pieces
+3. a player concedes
+4. the players agree to call it a draw
+In the first case, the outcome of the game is determined by the number of grid points in the zone of control of each player.
+The player with the higher numbers ones.
+If they are equal, the game is a draw.
+
+Pieces:
+
+Pawn
+Count: 11
+Attack: 1
+Defence: 3
+Movement: 3
+Pass-through: false
+
+Martyr
+Count: 2
+Attack: 2 (+1 over pawn)
+Defence: 3
+Movement: 3
+Pass-through: false
+
+Guardian
+Count: 2
+Attack: 1
+Defence: 4 (+1 over pawn)
+Movement: 3
+Pass-through: false
+
+Chariot
+Count: 2
+Attack: 1
+Defence: 3
+Movement: 4 (+1 over pawn)
+Pass-through: false
+
+Serpent
+Count: 2
+Attack: 1
+Defence: 3
+Movement: 3
+Pass-through: true (can pass through all pieces, unlike others)

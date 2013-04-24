@@ -1,0 +1,9 @@
+Data
+References
+bin
+obj
+*.suo
+*.user
+Source/Common/Properties/AssemblyInfo.cs
+Source/Server/Properties/AssemblyInfo.cs
+Source/SimpleClient/Properties/AssemblyInfo.cs
