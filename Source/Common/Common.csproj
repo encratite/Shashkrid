@@ -48,6 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exception.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="GameConstants.cs" />
+    <Compile Include="Hex.cs" />
+    <Compile Include="Piece.cs" />
+    <Compile Include="PieceType.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
