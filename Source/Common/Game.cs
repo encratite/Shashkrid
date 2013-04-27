@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Shashkrid
 {
@@ -85,6 +86,59 @@ namespace Shashkrid
 			attacker.Hex = destinationHex;
 			sourceHex.Piece = null;
 			destinationHex.Piece = attacker;
+		}
+
+		public void DropPiece(Position location, PieceType type)
+		{
+			location.CheckValidity();
+			if (CurrentTurnMoves != 0)
+				throw new GameException("You have already made a move this turn");
+			bool isValid = false;
+			List<Hex> zoneOfControl = GetZoneOfControl(CurrentTurnPlayer);
+			foreach (Hex hex in zoneOfControl)
+			{
+				if (hex.Position.Equals(location))
+				{
+					isValid = true;
+					break;
+				}
+			}
+			if (!isValid)
+				throw new GameException("This hex is not in your zone of control");
+			if (!CurrentTurnPlayer.Captures.Remove(type))
+				throw new GameException("You have not captured a piece of this type");
+			Hex dropHex = GetHex(location);
+			if (dropHex.Piece != null)
+				throw new GameException("This hex is occupied");
+			Piece piece = new Piece(type, CurrentTurnPlayer);
+			dropHex.Piece = piece;
+			CurrentTurnMoves = GameConstants.MovesPerTurn;
+		}
+
+		public bool IsAnnihilation(ref PlayerColour annihilator)
+		{
+			return PlayerWasAnnihilated(Black, White, ref annihilator) || PlayerWasAnnihilated(White, Black, ref annihilator);
+		}
+
+		public bool IsDomination(ref PlayerColour dominator)
+		{
+			List<Hex> blackZone = GetZoneOfControl(Black);
+			List<Hex> whiteZone = GetZoneOfControl(White);
+			if (blackZone.Count == whiteZone.Count)
+				return false;
+			if (blackZone.Count > whiteZone.Count)
+				dominator = PlayerColour.Black;
+			else
+				dominator = PlayerColour.White;
+			return true;
+		}
+
+		bool PlayerWasAnnihilated(Player annihilator, Player victim, ref PlayerColour output)
+		{
+			if (victim.Pieces.Any())
+				return false;
+			output = annihilator.Colour;
+			return true;
 		}
 
 		Hex GetHex(Position position)
@@ -187,6 +241,50 @@ namespace Shashkrid
 					attackSum += piece.Type.Attack;
 			}
 			return attackSum;
+		}
+
+		List<Hex> GetZoneOfControl(Player player)
+		{
+			int initial;
+			int direction;
+			if (player.Colour == PlayerColour.Black)
+			{
+				initial = 0;
+				direction = 1;
+			}
+			else
+			{
+				initial = GameConstants.GridSizeY - 1;
+				direction = -1;
+			}
+			List<Hex> zone = new List<Hex>();
+			for (int x = 0; x < GameConstants.GridSizeX; x++)
+			{
+				int? maximum = null;
+				for (int y = initial; y >= 0 && y < GameConstants.GridSizeY; y += direction)
+				{
+					Position position = new Position(x, y);
+					Hex hex = GetHex(position);
+					Piece piece = hex.Piece;
+					if (piece == null)
+						continue;
+					else if (object.ReferenceEquals(piece.Owner, player))
+						maximum = y;
+					else
+						break;
+				}
+				if (maximum == null)
+					continue;
+				for (int y = initial; ; y += direction)
+				{
+					Position position = new Position(x, y);
+					Hex hex = GetHex(position);
+					zone.Add(hex);
+					if (y == maximum)
+						break;
+				}
+			}
+			return zone;
 		}
 	}
 }

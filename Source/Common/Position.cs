@@ -57,8 +57,11 @@ namespace Shashkrid
 				throw new GameException("Invalid position specified");
 		}
 
-		public bool Equals(Position position)
+		public override bool Equals(object input)
 		{
+			if (input == null || GetType() != input.GetType())
+				return false;
+			Position position = (Position)input;
 			return X == position.X && Y == position.Y;
 		}
 
