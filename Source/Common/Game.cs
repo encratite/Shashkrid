@@ -11,32 +11,45 @@ namespace Shashkrid
 	class Game
 	{
 		List<Hex> Grid;
-		List<Piece> Pieces;
-		PlayerColour CurrentTurnPlayer;
+		Player Black;
+		Player White;
+		List<Player> Players;
+		Player CurrentTurnPlayer;
 		int CurrentTurn;
 		int CurrentTurnMoves;
 
 		public Game(List<PiecePlacement> blackDeployment, List<PiecePlacement> whiteDeployment)
 		{
-			CurrentTurnPlayer = PlayerColour.Black;
+			Black = new Player(PlayerColour.Black);
+			White = new Player(PlayerColour.White);
+			Players = new List<Player>()
+			{
+				Black,
+				White,
+			};
+
+			CurrentTurnPlayer = Black;
 			CurrentTurn = 1;
 			CurrentTurnMoves = 0;
 
 			CreateGrid();
-			DeployPieces(blackDeployment, PlayerColour.Black);
-			DeployPieces(whiteDeployment, PlayerColour.White);
+			DeployPieces(blackDeployment, Black);
+			DeployPieces(whiteDeployment, White);
 		}
 
 		public void NewTurn()
 		{
-			if (CurrentTurnPlayer == PlayerColour.Black)
-				CurrentTurnPlayer = PlayerColour.White;
+			if (object.ReferenceEquals(CurrentTurnPlayer, Black))
+				CurrentTurnPlayer = White;
 			else
-				CurrentTurnPlayer = PlayerColour.Black;
+				CurrentTurnPlayer = Black;
 			CurrentTurn++;
 			CurrentTurnMoves = 0;
-			foreach (Piece piece in Pieces)
-				piece.CanMove = true;
+			foreach (Player player in Players)
+			{
+				foreach (Piece piece in player.Pieces)
+					piece.CanMove = true;
+			}
 		}
 
 		public void MovePiece(Position source, Position destination)
@@ -66,10 +79,12 @@ namespace Shashkrid
 				int attackSum = GetAttackSum(attacker, defender);
 				if (attackSum < defender.Type.Defence)
 					throw new GameException("Your attack is too weak to capture this piece");
+				attacker.Owner.Captures.Add(defender.Type);
+				defender.Owner.Pieces.Remove(defender);
 			}
 			attacker.Hex = destinationHex;
 			sourceHex.Piece = null;
-			throw new MissingFeatureException("Move");
+			destinationHex.Piece = attacker;
 		}
 
 		Hex GetHex(Position position)
@@ -113,20 +128,19 @@ namespace Shashkrid
 				return position.Y > GameConstants.DeploymentYLimit;
 		}
 
-		void DeployPieces(List<PiecePlacement> deployment, PlayerColour colour)
+		void DeployPieces(List<PiecePlacement> deployment, Player player)
 		{
-			Pieces = new List<Piece>();
 			Dictionary<PieceTypeIdentifier, int> typeCounts = new Dictionary<PieceTypeIdentifier, int>();
 			foreach (PiecePlacement placement in deployment)
 			{
-				if(!IsValidDeploymentPosition(placement.Position, colour))
+				if(!IsValidDeploymentPosition(placement.Position, player.Colour))
 					throw new GameException("Invalid deployment position");
 				Hex hex = GetHex(placement.Position);
 				if(hex.Piece != null)
 					throw new GameException("Tried to deploy two pieces to the same hex");
 				PieceType type = GameConstants.Pieces[placement.Type];
-				Piece piece = new Piece(type, colour);
-				Pieces.Add(piece);
+				Piece piece = new Piece(type, player);
+				player.Pieces.Add(piece);
 				hex.Piece = piece;
 				typeCounts[placement.Type]++;
 			}
