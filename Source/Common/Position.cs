@@ -57,9 +57,14 @@ namespace Shashkrid
 				throw new GameException("Invalid position specified");
 		}
 
-		public bool SamePosition(Position position)
+		public bool Equals(Position position)
 		{
 			return X == position.X && Y == position.Y;
+		}
+
+		public override int GetHashCode()
+		{
+			return (X << 16) | Y;
 		}
 
 		public static Position operator +(Position a, Position b)

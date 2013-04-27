@@ -55,7 +55,6 @@
     <Compile Include="Piece.cs" />
     <Compile Include="PiecePlacement.cs" />
     <Compile Include="PieceType.cs" />
-    <Compile Include="PlayerPreferences.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

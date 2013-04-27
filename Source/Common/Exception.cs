@@ -9,4 +9,12 @@ namespace Shashkrid
 		{
 		}
 	}
+
+	class MissingFeatureException : Exception
+	{
+		public MissingFeatureException(string message) :
+			base(string.Format("Missing feature: {0}", message))
+		{
+		}
+	}
 }

@@ -9,6 +9,8 @@ namespace Shashkrid
 
 		public const int DeploymentYLimit = 5;
 
+		public const int MovesPerTurn = 3;
+
 		public static Dictionary<PieceTypeIdentifier, PieceType> Pieces = new Dictionary<PieceTypeIdentifier,PieceType>()
 		{
 			{PieceTypeIdentifier.Pawn, new PieceType("Pawn", 11, 1, 3, 3, false)},
