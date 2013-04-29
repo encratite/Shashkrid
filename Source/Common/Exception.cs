@@ -10,6 +10,14 @@ namespace Shashkrid
 		}
 	}
 
+	class ServerClientException : Exception
+	{
+		public ServerClientException(string message) :
+			base(message)
+		{
+		}
+	}
+
 	class MissingFeatureException : Exception
 	{
 		public MissingFeatureException(string message) :
