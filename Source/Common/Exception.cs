@@ -10,9 +10,9 @@ namespace Shashkrid
 		}
 	}
 
-	class ServerClientException : Exception
+	class MessengerException : Exception
 	{
-		public ServerClientException(string message) :
+		public MessengerException(string message) :
 			base(message)
 		{
 		}

@@ -5,6 +5,8 @@ namespace Shashkrid
 {
 	class Server
 	{
+		public const int ProtocolVersion = 0;
+
 		TcpListener Listener;
 		OutputManager OutputManager;
 
