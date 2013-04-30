@@ -173,6 +173,10 @@ namespace Shashkrid
 		[ProtoMember(6)]
 		public List<PiecePlacement> WhiteDeployment;
 
+		public PlayerPreferences()
+		{
+		}
+
 		public PlayerPreferences(string playerName, string gameName, bool wantsBlack, List<PiecePlacement> blackPlacements, List<PiecePlacement> whitePlacements)
 		{
 			ProtocolVersion = Server.ProtocolVersion;
@@ -193,6 +197,10 @@ namespace Shashkrid
 		[ProtoMember(2)]
 		public Position Destination;
 
+		public PieceMove()
+		{
+		}
+
 		public PieceMove(Position source, Position destination)
 		{
 			Source = source;
@@ -208,6 +216,10 @@ namespace Shashkrid
 
 		[ProtoMember(2)]
 		public Position Destination;
+
+		public PieceDrop()
+		{
+		}
 
 		public PieceDrop(PieceTypeIdentifier piece, Position destination)
 		{
@@ -225,6 +237,10 @@ namespace Shashkrid
 		[ProtoMember(2)]
 		public bool IsFatal;
 
+		public Error()
+		{
+		}
+
 		public Error(string message, bool isFatal)
 		{
 			Message = message;
@@ -240,6 +256,10 @@ namespace Shashkrid
 
 		[ProtoMember(2)]
 		public List<PiecePlacement> Deployment;
+
+		public PlayerDescription()
+		{
+		}
 
 		public PlayerDescription(string name, List<PiecePlacement> deployment)
 		{
@@ -257,6 +277,10 @@ namespace Shashkrid
 		[ProtoMember(2)]
 		public PlayerDescription White;
 
+		public GameStart()
+		{
+		}
+
 		public GameStart(PlayerDescription black, PlayerDescription white)
 		{
 			Black = black;
@@ -270,6 +294,10 @@ namespace Shashkrid
 		[ProtoMember(1)]
 		public PlayerColour ActivePlayer;
 
+		public NewTurn()
+		{
+		}
+
 		public NewTurn(PlayerColour activePlayer)
 		{
 			ActivePlayer = activePlayer;
@@ -282,8 +310,12 @@ namespace Shashkrid
 		[ProtoMember(1)]
 		public GameOutcomeType Outcome;
 
-		[ProtoMember(2)]
+		[ProtoMember(2, IsRequired = false)]
 		public PlayerColour? Winner;
+
+		public GameOutcome()
+		{
+		}
 
 		public GameOutcome(GameOutcomeType outcome, PlayerColour winner)
 		{
