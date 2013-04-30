@@ -34,6 +34,46 @@ namespace Shashkrid
 	{
 		[ProtoMember(1)]
 		public ClientToServerMessageType Type;
+
+		[ProtoMember(2, IsRequired = false)]
+		public PlayerPreferences Preferences;
+
+		[ProtoMember(3, IsRequired = false)]
+		public PieceMove Move;
+
+		[ProtoMember(4, IsRequired = false)]
+		public PieceDrop Drop;
+
+		public ClientToServerMessage()
+		{
+		}
+
+		ClientToServerMessage(ClientToServerMessageType type)
+		{
+			Type = type;
+		}
+
+		public static ClientToServerMessage PlayGameMessage(PlayerPreferences preferences)
+		{
+			ClientToServerMessage message = new ClientToServerMessage(ClientToServerMessageType.PlayGame);
+			message.Preferences = preferences;
+			return message;
+		}
+
+		public static ClientToServerMessage MovePieceMessage(PieceMove move)
+		{
+			ClientToServerMessage message = new ClientToServerMessage(ClientToServerMessageType.MovePiece);
+			message.Move = move;
+			return message;
+		}
+
+		public static ClientToServerMessage DropPieceMessage(PieceDrop drop)
+		{
+			ClientToServerMessage message = new ClientToServerMessage(ClientToServerMessageType.DropPiece);
+			message.Drop = drop;
+			return message;
+		}
+
 	}
 
 	[ProtoContract]
@@ -41,6 +81,75 @@ namespace Shashkrid
 	{
 		[ProtoMember(1)]
 		public ServerToClientMessageType Type;
+
+		[ProtoMember(2, IsRequired = false)]
+		public Error Error;
+
+		[ProtoMember(3, IsRequired = false)]
+		public GameStart GameStart;
+
+		[ProtoMember(4, IsRequired = false)]
+		public NewTurn NewTurn;
+
+		[ProtoMember(5, IsRequired = false)]
+		public PieceMove Move;
+
+		[ProtoMember(6, IsRequired = false)]
+		public PieceDrop Drop;
+
+		[ProtoMember(7, IsRequired = false)]
+		public GameOutcome Outcome;
+
+		public ServerToClientMessage()
+		{
+		}
+
+		ServerToClientMessage(ServerToClientMessageType type)
+		{
+			Type = type;
+		}
+
+		public static ServerToClientMessage ErrorMessage(Error error)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.Error);
+			message.Error = error;
+			return message;
+		}
+
+		public static ServerToClientMessage GameStartedMessage(GameStart gameStart)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.GameStarted);
+			message.GameStart = gameStart;
+			return message;
+		}
+
+		public static ServerToClientMessage NewTurnMessage(NewTurn newTurn)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.NewTurn);
+			message.NewTurn = newTurn;
+			return message;
+		}
+
+		public static ServerToClientMessage PieceMovedMessage(PieceMove move)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.PieceMoved);
+			message.Move = move;
+			return message;
+		}
+
+		public static ServerToClientMessage PieceDroppedMessage(PieceDrop drop)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.PieceDropped);
+			message.Drop = drop;
+			return message;
+		}
+
+		public static ServerToClientMessage GameEndedMessage(GameOutcome outcome)
+		{
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.GameEnded);
+			message.Outcome = outcome;
+			return message;
+		}
 	}
 
 	[ProtoContract]
