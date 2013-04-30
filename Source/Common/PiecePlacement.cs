@@ -1,9 +1,15 @@
-﻿namespace Shashkrid
+﻿using ProtoBuf;
+
+namespace Shashkrid
 {
+	[ProtoContract]
 	class PiecePlacement
 	{
-		public readonly PieceTypeIdentifier Type;
-		public readonly Position Position;
+		[ProtoMember(1)]
+		public PieceTypeIdentifier Type;
+
+		[ProtoMember(2)]
+		public Position Position;
 
 		public PiecePlacement(PieceTypeIdentifier type, Position position)
 		{

@@ -1,7 +1,10 @@
 ﻿using System;
 
+using ProtoBuf;
+
 namespace Shashkrid
 {
+	[ProtoContract]
 	class Position
 	{
 		public static Position[] NeighbourOffsets =
@@ -20,8 +23,11 @@ namespace Shashkrid
 			new Position(0, 1),
 		};
 
-		public readonly int X;
-		public readonly int Y;
+		[ProtoMember(1)]
+		public int X;
+
+		[ProtoMember(2)]
+		public int Y;
 
 		public int Z
 		{
