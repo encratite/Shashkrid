@@ -11,6 +11,8 @@ namespace Shashkrid
 
 		public const int MovesPerTurn = 3;
 
+		public const int TurnLimit = 2 * 11;
+
 		public static Dictionary<PieceTypeIdentifier, PieceType> Pieces = new Dictionary<PieceTypeIdentifier,PieceType>()
 		{
 			{PieceTypeIdentifier.Pawn, new PieceType("Pawn", 11, 1, 3, 3, false)},

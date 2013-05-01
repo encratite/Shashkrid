@@ -313,7 +313,7 @@ namespace Shashkrid
 		{
 		}
 
-		public GameOutcome(GameOutcomeType outcome, PlayerColour winner)
+		public GameOutcome(GameOutcomeType outcome, PlayerColour? winner)
 		{
 			Outcome = outcome;
 			Winner = winner;

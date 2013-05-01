@@ -27,6 +27,12 @@ namespace Shashkrid
 		Player CurrentTurnPlayer;
 		int CurrentTurn;
 		int CurrentTurnMoves;
+		PlayerColour? _Winner;
+
+		public PlayerColour CurrentPlayer { get { return CurrentTurnPlayer.Colour; } }
+		public int Turn { get { return CurrentTurn; } }
+		public int Moves { get { return CurrentTurnMoves; } }
+		public PlayerColour? Winner { get { return _Winner; } }
 
 		public Game(List<PiecePlacement> blackDeployment, List<PiecePlacement> whiteDeployment)
 		{
@@ -41,6 +47,7 @@ namespace Shashkrid
 			CurrentTurnPlayer = Black;
 			CurrentTurn = 1;
 			CurrentTurnMoves = 0;
+			_Winner = null;
 
 			CreateGrid();
 			DeployPieces(blackDeployment, Black);
@@ -124,29 +131,32 @@ namespace Shashkrid
 			CurrentTurnMoves = GameConstants.MovesPerTurn;
 		}
 
-		public bool IsAnnihilation(ref PlayerColour annihilator)
+		public bool IsAnnihilation()
 		{
-			return PlayerWasAnnihilated(Black, White, ref annihilator) || PlayerWasAnnihilated(White, Black, ref annihilator);
+			return PlayerWasAnnihilated(Black, White) || PlayerWasAnnihilated(White, Black);
 		}
 
-		public bool IsDomination(ref PlayerColour dominator)
+		public bool IsDomination()
 		{
 			List<Hex> blackZone = GetZoneOfControl(Black);
 			List<Hex> whiteZone = GetZoneOfControl(White);
 			if (blackZone.Count == whiteZone.Count)
+			{
+				_Winner = null;
 				return false;
-			if (blackZone.Count > whiteZone.Count)
-				dominator = PlayerColour.Black;
+			}
+			else if (blackZone.Count > whiteZone.Count)
+				_Winner = PlayerColour.Black;
 			else
-				dominator = PlayerColour.White;
+				_Winner = PlayerColour.White;
 			return true;
 		}
 
-		bool PlayerWasAnnihilated(Player annihilator, Player victim, ref PlayerColour output)
+		bool PlayerWasAnnihilated(Player annihilator, Player victim)
 		{
 			if (victim.Pieces.Any())
 				return false;
-			output = annihilator.Colour;
+			_Winner = annihilator.Colour;
 			return true;
 		}
 

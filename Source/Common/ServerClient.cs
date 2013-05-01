@@ -60,7 +60,7 @@ namespace Shashkrid
 			MessageHandlers[ClientToServerMessageType.DropPiece] = OnDropPiece;
 		}
 
-		void SetDefaultState()
+		public void SetDefaultState()
 		{
 			State = ServerClientState.Connected;
 			Preferences = null;
@@ -81,6 +81,10 @@ namespace Shashkrid
 					handler(message);
 				}
 				catch (ServerClientException exception)
+				{
+					SendError(exception.Message);
+				}
+				catch (GameException exception)
 				{
 					SendError(exception.Message);
 				}
@@ -197,6 +201,35 @@ namespace Shashkrid
 			Opponent.SendMessage(message);
 		}
 
+		void EndOfTurn()
+		{
+			GameOutcomeType? outcomeType = null;
+			if (Game.IsAnnihilation())
+				outcomeType = GameOutcomeType.Annihilation;
+			else if (Game.Turn >= GameConstants.TurnLimit)
+			{
+				if (Game.IsDomination())
+					outcomeType = GameOutcomeType.Domination;
+				else
+					outcomeType = GameOutcomeType.Draw;
+			}
+			ServerToClientMessage message;
+			if (outcomeType == null)
+			{
+				Game.NewTurn();
+				NewTurn newTurn = new NewTurn(Game.CurrentPlayer);
+				message = ServerToClientMessage.NewTurnMessage(newTurn);
+			}
+			else
+			{
+				SetDefaultState();
+				Opponent.SetDefaultState();
+				GameOutcome outcome = new GameOutcome(outcomeType.Value, Game.Winner);
+				message = ServerToClientMessage.GameEndedMessage(outcome);
+			}
+			BroadcastMessage(message);
+		}
+
 		void OnPlayGame(ClientToServerMessage message)
 		{
 			if (State != ServerClientState.Connected)
@@ -214,12 +247,40 @@ namespace Shashkrid
 
 		void OnMovePiece(ClientToServerMessage message)
 		{
-			throw new NotImplementedException();
+			if (State != ServerClientState.InGame)
+				throw new ServerClientException("You tried to move a piece even though you are not in a game");
+			if(Game.CurrentPlayer != Colour)
+				throw new ServerClientException("You tried to move a piece during your opponent's turn");
+			PieceMove move = message.Move;
+			if (move == null)
+				throw new ServerClientException("No move has been specified");
+			if (move.Source == null)
+				throw new ServerClientException("Source missing");
+			if (move.Destination == null)
+				throw new ServerClientException("Destination missing");
+			Game.MovePiece(move.Source, move.Destination);
+			ServerToClientMessage moveMessage = ServerToClientMessage.PieceMovedMessage(move);
+			BroadcastMessage(moveMessage);
+			if (Game.Moves >= GameConstants.MovesPerTurn)
+				EndOfTurn();
 		}
 
 		void OnDropPiece(ClientToServerMessage message)
 		{
-			throw new NotImplementedException();
+			if (State != ServerClientState.InGame)
+				throw new ServerClientException("You tried to drop a piece even though you are not in a game");
+			if (Game.CurrentPlayer != Colour)
+				throw new ServerClientException("You tried to drop a piece during your opponent's turn");
+			PieceDrop drop = message.Drop;
+			if(drop == null)
+				throw new ServerClientException("No drop has been specified");
+			if (drop.Destination == null)
+				throw new ServerClientException("No destination has been specified");
+			PieceType type = GameConstants.Pieces[drop.Piece];
+			Game.DropPiece(drop.Destination, type);
+			ServerToClientMessage dropMessage = ServerToClientMessage.PieceDroppedMessage(drop);
+			BroadcastMessage(dropMessage);
+			EndOfTurn();
 		}
 	}
 }
