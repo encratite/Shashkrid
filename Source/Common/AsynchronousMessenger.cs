@@ -64,12 +64,16 @@ namespace Shashkrid
 
 		abstract protected void OnMessage(IncomingMessageType message);
 
-		abstract protected void OnException(MessengerException exception);
+		abstract protected void OnDisconnect();
+
+		abstract protected void OnMessengerError(MessengerException exception);
 
 		void Receive()
 		{
-			if(Socket.Connected)
+			if (Socket.Connected)
 				Socket.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+			else
+				OnDisconnect();
 		}
 
 		void Send()
@@ -97,7 +101,9 @@ namespace Shashkrid
 				}
 				catch (MessengerException exception)
 				{
-					OnException(exception);
+					Close();
+					OnMessengerError(exception);
+					OnDisconnect();
 				}
 			}
 		}
@@ -117,10 +123,7 @@ namespace Shashkrid
 			if (Stream.Length < PrefixSize)
 				return;
 			if (Stream.Length > MaximumStreamLength)
-			{
-				Close();
 				throw new MessengerException("Maximum stream length exceeded");
-			}
 			Stream.Seek(0, SeekOrigin.Begin);
 			int sizePrefix = 0;
 			for (int i = 0; i < PrefixSize; i++)
@@ -129,10 +132,7 @@ namespace Shashkrid
 				sizePrefix |= Stream.ReadByte();
 			}
 			if (sizePrefix > MaximumStreamLength)
-			{
-				Close();
 				throw new MessengerException("The size prefix exceeds the maximum stream length");
-			}
 			int totalSize = PrefixSize + sizePrefix;
 			if (Stream.Length < totalSize)
 			{

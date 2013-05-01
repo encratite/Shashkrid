@@ -28,8 +28,10 @@ namespace Shashkrid
 				Socket socket = Listener.AcceptSocket();
 				lock (this)
 				{
-					ServerClient cient = new ServerClient(socket, this);
-					Clients.Add(cient);
+					ServerClient client = new ServerClient(socket, this);
+					client.OnConnect();
+					client.Run();
+					Clients.Add(client);
 				}
 			}
 		}
@@ -57,6 +59,11 @@ namespace Shashkrid
 					return client;
 			}
 			return null;
+		}
+
+		public void OnDisconnect(ServerClient client)
+		{
+			Clients.Remove(client);
 		}
 	}
 }

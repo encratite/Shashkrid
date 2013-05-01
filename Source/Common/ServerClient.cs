@@ -47,6 +47,11 @@ namespace Shashkrid
 			SetDefaultState();
 		}
 
+		public void OnConnect()
+		{
+			Message("Connected");
+		}
+
 		public bool WaitingInGame(string gameName)
 		{
 			return State == ServerClientState.WaitingForOpponent && GameName == gameName;
@@ -91,7 +96,22 @@ namespace Shashkrid
 			}
 		}
 
-		override protected void OnException(MessengerException exception)
+		override protected void OnDisconnect()
+		{
+			if (State == ServerClientState.InGame)
+			{
+				Message("Deserted game \"{0}\"", GameName);
+				GameOutcome outcome = new GameOutcome(GameOutcomeType.Desertion, Opponent.Colour);
+				ServerToClientMessage message = ServerToClientMessage.GameEndedMessage(outcome);
+				Opponent.SendMessage(message);
+				Opponent.SetDefaultState();
+			}
+			Message("Disconnected");
+			SetDefaultState();
+			Server.OnDisconnect(this);
+		}
+
+		override protected void OnMessengerError(MessengerException exception)
 		{
 			Message("Error: {0}", exception.Message);
 		}
@@ -99,7 +119,11 @@ namespace Shashkrid
 		void Message(string message, params object[] arguments)
 		{
 			string input = string.Format(message, arguments);
-			string clientMessage = string.Format("[{0}] {1}", Socket.RemoteEndPoint, input);
+			string clientMessage;
+			if(PlayerName != null)
+				clientMessage = string.Format("[{0} {1}] {2}", Socket.RemoteEndPoint, PlayerName, input);
+			else
+				clientMessage = string.Format("[{0}] {1}", Socket.RemoteEndPoint, input);
 			Server.Message(clientMessage);
 		}
 
@@ -222,10 +246,10 @@ namespace Shashkrid
 			}
 			else
 			{
-				SetDefaultState();
-				Opponent.SetDefaultState();
 				GameOutcome outcome = new GameOutcome(outcomeType.Value, Game.Winner);
 				message = ServerToClientMessage.GameEndedMessage(outcome);
+				SetDefaultState();
+				Opponent.SetDefaultState();
 			}
 			BroadcastMessage(message);
 		}
