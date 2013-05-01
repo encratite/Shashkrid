@@ -10,8 +10,8 @@ namespace Shashkrid
 {
 	class MessengerException : Exception
 	{
-		public MessengerException(string message) :
-			base(message)
+		public MessengerException(string message, params object[] parameters) :
+			base(string.Format(message, parameters))
 		{
 		}
 	}
@@ -139,12 +139,19 @@ namespace Shashkrid
 				Stream.Seek(0, SeekOrigin.End);
 				return;
 			}
-			IncomingMessageType message = Serializer.Deserialize<IncomingMessageType>(Stream);
-			MemoryStream newStream = new MemoryStream();
-			newStream.Write(Stream.GetBuffer(), (int)Stream.Position, (int)(Stream.Length - Stream.Position));
-			Stream.Close();
-			Stream = newStream;
-			OnMessage(message);
+			try
+			{
+				IncomingMessageType message = Serializer.Deserialize<IncomingMessageType>(Stream);
+				MemoryStream newStream = new MemoryStream();
+				newStream.Write(Stream.GetBuffer(), (int)Stream.Position, (int)(Stream.Length - Stream.Position));
+				Stream.Close();
+				Stream = newStream;
+				OnMessage(message);
+			}
+			catch (ProtoException exception)
+			{
+				throw new MessengerException("Deserialisation error: {0}", exception.Message);
+			}
 		}
 	}
 }
