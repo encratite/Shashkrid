@@ -8,6 +8,14 @@ using ProtoBuf;
 
 namespace Shashkrid
 {
+	class MessengerException : Exception
+	{
+		public MessengerException(string message) :
+			base(message)
+		{
+		}
+	}
+
 	abstract class AsynchronousMessenger<IncomingMessageType, OutgoingMessageType>
 	{
 		const int MaximumStreamLength = 1024 * 1024;

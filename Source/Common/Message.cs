@@ -234,17 +234,13 @@ namespace Shashkrid
 		[ProtoMember(1)]
 		public string Message;
 
-		[ProtoMember(2)]
-		public bool IsFatal;
-
 		public Error()
 		{
 		}
 
-		public Error(string message, bool isFatal)
+		public Error(string message)
 		{
 			Message = message;
-			IsFatal = isFatal;
 		}
 	}
 

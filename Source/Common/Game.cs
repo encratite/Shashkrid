@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Shashkrid
@@ -7,6 +8,14 @@ namespace Shashkrid
 	{
 		Black,
 		White,
+	}
+
+	class GameException : Exception
+	{
+		public GameException(string message, params object[] parameters) :
+			base(string.Format(message, parameters))
+		{
+		}
 	}
 
 	class Game
@@ -201,8 +210,11 @@ namespace Shashkrid
 
 			foreach (var pair in GameConstants.Pieces)
 			{
-				if (typeCounts[pair.Key] != pair.Value.Count)
-					throw new GameException("Encountered an invalid number of pieces of a certain type");
+				PieceTypeIdentifier pieceType = pair.Key;
+				int actualCount = typeCounts[pieceType];
+				int expectedCount = pair.Value.Count;
+				if (actualCount != expectedCount)
+					throw new GameException("Player {0} deployed {1} pieces of type {2}, expected {3}", player.Colour, actualCount, pieceType, expectedCount);
 			}
 		}
 
