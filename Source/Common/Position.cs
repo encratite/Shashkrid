@@ -5,7 +5,7 @@ using ProtoBuf;
 namespace Shashkrid
 {
 	[ProtoContract]
-	class Position
+	public class Position
 	{
 		public static Position[] NeighbourOffsets =
 		{

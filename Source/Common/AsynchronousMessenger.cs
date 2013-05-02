@@ -8,7 +8,7 @@ using ProtoBuf;
 
 namespace Shashkrid
 {
-	class MessengerException : Exception
+	public class MessengerException : Exception
 	{
 		public MessengerException(string message, params object[] parameters) :
 			base(string.Format(message, parameters))
@@ -16,7 +16,7 @@ namespace Shashkrid
 		}
 	}
 
-	abstract class AsynchronousMessenger<IncomingMessageType, OutgoingMessageType>
+	public abstract class AsynchronousMessenger<IncomingMessageType, OutgoingMessageType>
 	{
 		const int MaximumStreamLength = 1024 * 1024;
 		const int PrefixSize = 4;

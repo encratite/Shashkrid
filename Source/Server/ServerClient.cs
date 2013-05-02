@@ -164,8 +164,8 @@ namespace Shashkrid
 		{
 			if (preferences == null)
 				throw new ServerClientException("Preferences were not specified");
-			if (preferences.ProtocolVersion != Server.ProtocolVersion)
-				throw new ServerClientException("Invalid protocol version, this server uses version {0}", Server.ProtocolVersion);
+			if (preferences.ProtocolVersion != Protocol.Version)
+				throw new ServerClientException("Invalid protocol version, this server uses version {0}", Protocol.Version);
 			if (preferences.PlayerName == null)
 				throw new ServerClientException("No player name has been specified");
 			if (preferences.PlayerName.Length > Server.StringLengthLimit)

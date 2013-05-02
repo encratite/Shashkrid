@@ -1,6 +1,6 @@
 ﻿namespace Shashkrid
 {
-	enum PieceTypeIdentifier
+	public enum PieceTypeIdentifier
 	{
 		Pawn,
 		Martyr,
@@ -9,7 +9,7 @@
 		Serpent,
 	}
 
-	class PieceType
+	public class PieceType
 	{
 		public readonly string Name;
 		public readonly int Count;

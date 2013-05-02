@@ -4,14 +4,14 @@ using ProtoBuf;
 
 namespace Shashkrid
 {
-	enum ClientToServerMessageType
+	public enum ClientToServerMessageType
 	{
 		PlayGame,
 		MovePiece,
 		DropPiece,
 	}
 
-	enum ServerToClientMessageType
+	public enum ServerToClientMessageType
 	{
 		Error,
 		GameStarted,
@@ -21,7 +21,7 @@ namespace Shashkrid
 		GameEnded,
 	}
 
-	enum GameOutcomeType
+	public enum GameOutcomeType
 	{
 		Annihilation,
 		Domination,
@@ -29,8 +29,13 @@ namespace Shashkrid
 		Draw,
 	}
 
+	public abstract class Protocol
+	{
+		public const int Version = 0;
+	}
+
 	[ProtoContract]
-	class ClientToServerMessage
+	public class ClientToServerMessage
 	{
 		[ProtoMember(1)]
 		public ClientToServerMessageType Type;
@@ -77,7 +82,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class ServerToClientMessage
+	public class ServerToClientMessage
 	{
 		[ProtoMember(1)]
 		public ServerToClientMessageType Type;
@@ -153,7 +158,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class PlayerPreferences
+	public class PlayerPreferences
 	{
 		[ProtoMember(1)]
 		public int ProtocolVersion;
@@ -179,7 +184,7 @@ namespace Shashkrid
 
 		public PlayerPreferences(string playerName, string gameName, bool wantsBlack, List<PiecePlacement> blackPlacements, List<PiecePlacement> whitePlacements)
 		{
-			ProtocolVersion = Server.ProtocolVersion;
+			ProtocolVersion = Protocol.Version;
 			PlayerName = playerName;
 			GameName = gameName;
 			WantsBlack = wantsBlack;
@@ -189,7 +194,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class PieceMove
+	public class PieceMove
 	{
 		[ProtoMember(1)]
 		public Position Source;
@@ -209,7 +214,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class PieceDrop
+	public class PieceDrop
 	{
 		[ProtoMember(1)]
 		public PieceTypeIdentifier Piece;
@@ -229,7 +234,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class Error
+	public class Error
 	{
 		[ProtoMember(1)]
 		public string Message;
@@ -245,7 +250,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class PlayerDescription
+	public class PlayerDescription
 	{
 		[ProtoMember(1)]
 		public string Name;
@@ -265,7 +270,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class GameStart
+	public class GameStart
 	{
 		[ProtoMember(1)]
 		public PlayerDescription Black;
@@ -285,7 +290,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class NewTurn
+	public class NewTurn
 	{
 		[ProtoMember(1)]
 		public PlayerColour ActivePlayer;
@@ -301,7 +306,7 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	class GameOutcome
+	public class GameOutcome
 	{
 		[ProtoMember(1)]
 		public GameOutcomeType Outcome;

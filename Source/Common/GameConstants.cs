@@ -2,7 +2,7 @@
 
 namespace Shashkrid
 {
-	class GameConstants
+	public class GameConstants
 	{
 		public const int GridSizeX = 11;
 		public const int GridSizeY = 11;
@@ -13,7 +13,7 @@ namespace Shashkrid
 
 		public const int TurnLimit = 2 * 11;
 
-		public static Dictionary<PieceTypeIdentifier, PieceType> Pieces = new Dictionary<PieceTypeIdentifier,PieceType>()
+		public static Dictionary<PieceTypeIdentifier, PieceType> Pieces = new Dictionary<PieceTypeIdentifier, PieceType>()
 		{
 			{PieceTypeIdentifier.Pawn, new PieceType("Pawn", 11, 1, 3, 3, false)},
 			{PieceTypeIdentifier.Martyr, new PieceType("Martyr", 11, 2, 3, 3, false)},

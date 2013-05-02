@@ -3,7 +3,7 @@
 namespace Shashkrid
 {
 	[ProtoContract]
-	class PiecePlacement
+	public class PiecePlacement
 	{
 		[ProtoMember(1)]
 		public PieceTypeIdentifier Type;

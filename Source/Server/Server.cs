@@ -6,7 +6,6 @@ namespace Shashkrid
 {
 	class Server
 	{
-		public const int ProtocolVersion = 0;
 		public const int StringLengthLimit = 100;
 
 		TcpListener Listener;

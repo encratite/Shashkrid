@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Shashkrid
 {
-	enum PlayerColour
+	public enum PlayerColour
 	{
 		Black,
 		White,
 	}
 
-	class GameException : Exception
+	public class GameException : Exception
 	{
 		public GameException(string message, params object[] parameters) :
 			base(string.Format(message, parameters))
@@ -18,7 +18,7 @@ namespace Shashkrid
 		}
 	}
 
-	class Game
+	public class Game
 	{
 		List<Hex> Grid;
 		Player Black;
