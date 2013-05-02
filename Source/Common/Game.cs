@@ -20,7 +20,7 @@ namespace Shashkrid
 
 	public class Game
 	{
-		List<Hex> Grid;
+		List<Hex> _Grid;
 		Player Black;
 		Player White;
 		List<Player> Players;
@@ -158,34 +158,34 @@ namespace Shashkrid
 			return true;
 		}
 
+		public Hex GetHex(Position position)
+		{
+			position.CheckValidity();
+			int index = position.X + position.Y * GameConstants.GridSizeX;
+			return _Grid[index];
+		}
+
 		bool PlayerWasAnnihilated(Player annihilator, Player victim)
 		{
 			if (victim.Pieces.Any())
 				return false;
 			_Winner = annihilator.Colour;
 			return true;
-		}
-
-		Hex GetHex(Position position)
-		{
-			position.CheckValidity();
-			int index = position.X + position.Y * GameConstants.GridSizeX;
-			return Grid[index];
-		}
+		}		
 
 		void CreateGrid()
 		{
-			Grid = new List<Hex>();
+			_Grid = new List<Hex>();
 			for (int y = 0; y < GameConstants.GridSizeY; y++)
 			{
 				for (int x = 0; x < GameConstants.GridSizeX; x++)
 				{
 					Position position = new Position(x, y);
 					Hex hex = new Hex(position);
-					Grid.Add(hex);
+					_Grid.Add(hex);
 				}
 			}
-			foreach (Hex hex in Grid)
+			foreach (Hex hex in _Grid)
 			{
 				foreach (Position offset in Position.NeighbourOffsets)
 				{

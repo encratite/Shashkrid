@@ -2,7 +2,7 @@
 
 namespace Shashkrid
 {
-	class Player
+	public class Player
 	{
 		public readonly PlayerColour Colour;
 		public readonly List<Piece> Pieces;

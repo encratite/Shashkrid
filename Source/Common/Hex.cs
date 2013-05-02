@@ -2,7 +2,7 @@
 
 namespace Shashkrid
 {
-	class Hex
+	public class Hex
 	{
 		public readonly Position Position;
 		public Piece Piece;

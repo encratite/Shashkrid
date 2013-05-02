@@ -11,6 +11,7 @@
 
 	public class PieceType
 	{
+		public readonly PieceTypeIdentifier Identifier;
 		public readonly string Name;
 		public readonly int Count;
 		public readonly int Attack;
@@ -18,8 +19,9 @@
 		public readonly int Movement;
 		public readonly bool PassThrough;
 
-		public PieceType(string name, int count, int attack, int defence, int movement, bool passThrough)
+		public PieceType(PieceTypeIdentifier identifier, string name, int count, int attack, int defence, int movement, bool passThrough)
 		{
+			Identifier = identifier;
 			Name = name;
 			Count = count;
 			Attack = attack;

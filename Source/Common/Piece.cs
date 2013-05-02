@@ -1,6 +1,6 @@
 ﻿namespace Shashkrid
 {
-	class Piece
+	public class Piece
 	{
 		public readonly PieceType Type;
 		public readonly Player Owner;
