@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-
 namespace Shashkrid
 {
 	enum ServerClientState
@@ -300,8 +299,7 @@ namespace Shashkrid
 				throw new ServerClientException("No drop has been specified");
 			if (drop.Destination == null)
 				throw new ServerClientException("No destination has been specified");
-			PieceType type = GameConstants.Pieces[drop.Piece];
-			Game.DropPiece(drop.Destination, type);
+			Game.DropPiece(drop.Destination, drop.Piece);
 			ServerToClientMessage dropMessage = ServerToClientMessage.PieceDroppedMessage(drop);
 			BroadcastMessage(dropMessage);
 			EndOfTurn();

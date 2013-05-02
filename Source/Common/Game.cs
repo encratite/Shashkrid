@@ -104,7 +104,7 @@ namespace Shashkrid
 			destinationHex.Piece = attacker;
 		}
 
-		public void DropPiece(Position location, PieceType type)
+		public void DropPiece(Position location, PieceTypeIdentifier typeIdentifier)
 		{
 			location.CheckValidity();
 			if (CurrentTurnMoves != 0)
@@ -121,6 +121,7 @@ namespace Shashkrid
 			}
 			if (!isValid)
 				throw new GameException("This hex is not in your zone of control");
+			PieceType type = GameConstants.Pieces[typeIdentifier];
 			if (!CurrentTurnPlayer.Captures.Remove(type))
 				throw new GameException("You have not captured a piece of this type");
 			Hex dropHex = GetHex(location);
