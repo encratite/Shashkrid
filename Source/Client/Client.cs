@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 
+using Nil;
+
 using Shashkrid;
 
 namespace Client
@@ -17,11 +19,23 @@ namespace Client
 			Messenger = null;
 		}
 
-		void Run()
+		public void Run()
 		{
 			TcpClient client = new TcpClient();
 			client.Connect(Configuration.Server);
 			Messenger = new ClientMessenger(client.Client, Configuration.Preferences);
+			Messenger.Run();
+			while (true)
+			{
+				Console.Write("> ");
+				string line = Console.ReadLine();
+				List<string> tokens = Nil.String.Tokenise(line, " ");
+				if (tokens.Count == 0)
+					continue;
+				string command = tokens[0];
+				List<string> arguments = tokens.GetRange(1, tokens.Count - 1);
+				throw new NotImplementedException();
+			}
 		}
 
 		void Write(string text, ConsoleColor colour)
@@ -93,6 +107,7 @@ namespace Client
 				Write(rightLabel + "\n", labelColour);
 			}
 			Write("  " + xLabels + "\n", labelColour);
+			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 
 		string GetXLabels()
