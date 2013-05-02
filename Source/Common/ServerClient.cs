@@ -285,7 +285,7 @@ namespace Shashkrid
 			Game.MovePiece(move.Source, move.Destination);
 			ServerToClientMessage moveMessage = ServerToClientMessage.PieceMovedMessage(move);
 			BroadcastMessage(moveMessage);
-			if (Game.Moves >= GameConstants.MovesPerTurn)
+			if (Game.NoMovesLeft())
 				EndOfTurn();
 		}
 

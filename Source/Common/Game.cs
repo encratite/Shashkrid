@@ -131,6 +131,11 @@ namespace Shashkrid
 			CurrentTurnMoves = GameConstants.MovesPerTurn;
 		}
 
+		public bool NoMovesLeft()
+		{
+			return CurrentTurnMoves >= Math.Min(CurrentTurnPlayer.Pieces.Count, GameConstants.MovesPerTurn);
+		}
+
 		public bool IsAnnihilation()
 		{
 			return PlayerWasAnnihilated(Black, White) || PlayerWasAnnihilated(White, Black);
