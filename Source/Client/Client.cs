@@ -1,127 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Threading;
 
-namespace Shashkrid
+using Shashkrid;
+
+namespace Client
 {
-	class ClientException : Exception
+	class Client
 	{
-		public ClientException(string message, params object[] parameters) :
-			base(string.Format(message, parameters))
+		ClientConfiguration Configuration;
+		ClientMessenger Messenger;
+
+		public Client(ClientConfiguration configuration)
 		{
-		}
-	}
-
-	abstract class Client : AsynchronousMessenger<ServerToClientMessage, ClientToServerMessage>
-	{
-		delegate void MessageHandler(ServerToClientMessage message);
-
-		Dictionary<ServerToClientMessageType, MessageHandler> MessageHandlers;
-
-		PlayerPreferences Preferences;
-		PlayerColour? Colour;
-		Game Game;
-		string Opponent;
-
-		public Client(Socket socket, PlayerPreferences preferences) :
-			base(socket)
-		{
-			InitialiseMessageHandlers();
-
-			Preferences = preferences;
-			Colour = null;
-			Game = null;
-			Opponent = null;
-
-			Play();
+			Configuration = configuration;
+			Messenger = null;
 		}
 
-		abstract protected void OnMyTurn();
-		abstract protected void OnGameException(GameException exception);
-		abstract protected void OnServerError(string message);
-
-		override protected void OnMessage(ServerToClientMessage message)
+		void Run()
 		{
-			if (!MessageHandlers.ContainsKey(message.Type))
-				throw new Exception("Unable to locate a message handler");
-			MessageHandler handler = MessageHandlers[message.Type];
-			try
-			{
-				handler(message);
-			}
-			catch (GameException exception)
-			{
-				OnGameException(exception);
-				Shutdown();
-			}
-		}
-
-		void InitialiseMessageHandlers()
-		{
-			MessageHandlers = new Dictionary<ServerToClientMessageType, MessageHandler>();
-			MessageHandlers[ServerToClientMessageType.Error] = OnError;
-			MessageHandlers[ServerToClientMessageType.GameStarted] = OnGameStarted;
-			MessageHandlers[ServerToClientMessageType.NewTurn] = OnNewTurn;
-			MessageHandlers[ServerToClientMessageType.PieceMoved] = OnPieceMoved;
-			MessageHandlers[ServerToClientMessageType.PieceDropped] = OnPieceDropped;
-			MessageHandlers[ServerToClientMessageType.GameEnded] = OnGameEnded;
-		}
-
-		void Play()
-		{
-			ClientToServerMessage message = ClientToServerMessage.PlayGameMessage(Preferences);
-			SendMessage(message);
-		}
-
-		void OnError(ServerToClientMessage message)
-		{
-			Error error = message.Error;
-			OnServerError(error.Message);
-		}
-
-		void OnGameStarted(ServerToClientMessage message)
-		{
-			GameStart start = message.GameStart;
-			Game = new Game(start.Black.Deployment, start.White.Deployment);
-			if (start.Black.Name == Preferences.PlayerName)
-			{
-				Colour = PlayerColour.Black;
-				Opponent = start.White.Name;
-			}
-			else
-			{
-				Colour = PlayerColour.White;
-				Opponent = start.Black.Name;
-			}
-
-			if (Colour == PlayerColour.Black)
-				OnMyTurn();
-		}
-
-		void OnNewTurn(ServerToClientMessage message)
-		{
-			Game.NewTurn();
-			NewTurn newTurn = message.NewTurn;
-			if (Colour == newTurn.ActivePlayer)
-				OnMyTurn();
-		}
-
-		void OnPieceMoved(ServerToClientMessage message)
-		{
-			PieceMove move = message.Move;
-			Game.MovePiece(move.Source, move.Destination);
-		}
-
-		void OnPieceDropped(ServerToClientMessage message)
-		{
-			PieceDrop drop = message.Drop;
-			Game.DropPiece(drop.Destination, drop.Piece);
-		}
-
-		void OnGameEnded(ServerToClientMessage message)
-		{
-			GameOutcome outcome = message.Outcome;
+			TcpClient client = new TcpClient();
+			client.Connect(Configuration.Server);
+			Messenger = new ClientMessenger(client.Client, Configuration.Preferences);
 		}
 
 		void Write(string text, ConsoleColor colour)
@@ -132,17 +32,19 @@ namespace Shashkrid
 
 		void RenderBoard()
 		{
-			ConsoleColor labelColour = ConsoleColor.White;
-			ConsoleColor boardColour = ConsoleColor.DarkGray;
-			ConsoleColor blackColour = ConsoleColor.Red;
-			ConsoleColor whiteColour = ConsoleColor.Yellow;
+			const ConsoleColor labelColour = ConsoleColor.White;
+			const ConsoleColor boardColour = ConsoleColor.DarkGray;
+			const ConsoleColor blackColour = ConsoleColor.Red;
+			const ConsoleColor whiteColour = ConsoleColor.Yellow;
 
-			Dictionary<PieceTypeIdentifier, string> pieceSymbols = new Dictionary<PieceTypeIdentifier, string>();
-			pieceSymbols[PieceTypeIdentifier.Pawn] = "P";
-			pieceSymbols[PieceTypeIdentifier.Martyr] = "M";
-			pieceSymbols[PieceTypeIdentifier.Guardian] = "G";
-			pieceSymbols[PieceTypeIdentifier.Chariot] = "C";
-			pieceSymbols[PieceTypeIdentifier.Serpent] = "S";
+			Dictionary<PieceTypeIdentifier, string> pieceSymbols = new Dictionary<PieceTypeIdentifier, string>()
+			{
+				{PieceTypeIdentifier.Pawn, "P"},
+				{PieceTypeIdentifier.Martyr, "M"},
+				{PieceTypeIdentifier.Guardian, "G"},
+				{PieceTypeIdentifier.Chariot, "C"},
+				{PieceTypeIdentifier.Serpent, "S"},
+			};
 
 			const string emptyHex = "o";
 			const string genericFiller = "--";
@@ -166,7 +68,7 @@ namespace Shashkrid
 				for (int column = 1; column <= GameConstants.GridSizeX; column++)
 				{
 					Position position = new Position(row, column);
-					Hex hex = Game.GetHex(position);
+					Hex hex = Messenger.Game.GetHex(position);
 					if (hex.Piece == null)
 						Write(emptyHex, boardColour);
 					else
@@ -176,11 +78,11 @@ namespace Shashkrid
 						string symbol = pieceSymbols[piece.Type.Identifier];
 						Write(symbol, colour);
 					}
-					if(column < GameConstants.GridSizeX)
+					if (column < GameConstants.GridSizeX)
 					{
 						if (row - 1 == GameConstants.DeploymentYLimit)
 							Write(separatingFiller, boardColour);
-						else if(column == GameConstants.GridSizeX / 2)
+						else if (column == GameConstants.GridSizeX / 2)
 							Write(verticalFillerLeft, boardColour);
 						else if (column == GameConstants.GridSizeX / 2 + 1)
 							Write(verticalFillerRight, boardColour);
