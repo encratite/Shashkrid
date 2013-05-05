@@ -69,9 +69,3 @@ Role: infiltration
 Attack: 1
 Defence: 3
 Movement: exactly 1 or 3, passes through all units on the way
-
-Priest
-Role: support
-Attack: 2, but 0 if it's the capturing piece
-Defence: 3
-Movement: 2
