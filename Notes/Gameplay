@@ -4,7 +4,7 @@ The name of this abstract strategy game is a neologism, from Sanskrit SaS, "six"
 It is a reference to the original Indian Chaturanga game, from which the modern variants of chess derive.
 
 The game is played on a diamond-shaped 13 * 9 hex grid with a hole in its center.
-The initial placement of the pieces is the same for every game:
+The initial placement of the pieces is the same for every game (each "P" symbolises a pawn while a "o" is an unoccupied field):
 
                   a  b  c  d  e  f  g  h  i  j  k  l  m
                 9 o--o--o--o--o--o--o--o--o--o--o--o--o 9 
@@ -25,6 +25,8 @@ These may be used to either move pieces or promote pawns to special pieces that 
 No piece may be moved more than once per turn.
 A pawns that has not been moved in the current turn and is not being touched by an opponent's piece can be promoted to become a martyr, a guardian, a lance or a serpent.
 A piece that was promoted must not be moved in the same turn.
+A player may only have up to two promoted pieces of the same type at a time.
+They may not perform other promotions of the same type until the pieces in question have been captured by the opponent.
 An opponent's piece may be captured if the sum of the attack values of one's own pieces adjacent to it, including the attacking piece, is greater or equal to the defence value of the target.
 The attacker takes the captured piece's place.
 A game ends in one of four ways.
@@ -52,18 +54,24 @@ Movement: 3 when moving forward, 1 otherwise
 
 Guardian
 Role: defensive
-Attack: 1, but 0 if it is the capturing piece
+Attack: 1, but 0 if it's the capturing piece
 Defence: 4
 Movement: 2
 
 Lance
 Role: mobility
 Attack: 1
-Defence: 3
+Defence: 2
 Movement: 4, can only move in a straight line
 
 Serpent
 Role: infiltration
 Attack: 1
 Defence: 3
-Movement: exactly 1 or 3, passes through all units
+Movement: exactly 1 or 3, passes through all units on the way
+
+Priest
+Role: support
+Attack: 2, but 0 if it's the capturing piece
+Defence: 3
+Movement: 2
