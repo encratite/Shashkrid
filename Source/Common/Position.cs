@@ -54,6 +54,11 @@ namespace Shashkrid
 
 		public bool IsValid()
 		{
+			foreach (Position position in GameConstants.TheVoid)
+			{
+				if (this == position)
+					return false;
+			}
 			return X >= 0 && X < GameConstants.GridSizeX && Y >= 0 && Y < GameConstants.GridSizeY;
 		}
 

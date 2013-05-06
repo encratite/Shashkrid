@@ -26,15 +26,15 @@ namespace Shashkrid
 		List<Player> Players;
 		Player CurrentTurnPlayer;
 		int CurrentTurn;
-		int CurrentTurnMoves;
+		int CurrentTurnActions;
 		PlayerColour? _Winner;
 
 		public PlayerColour CurrentPlayer { get { return CurrentTurnPlayer.Colour; } }
 		public int Turn { get { return CurrentTurn; } }
-		public int Moves { get { return CurrentTurnMoves; } }
+		public int Actions { get { return CurrentTurnActions; } }
 		public PlayerColour? Winner { get { return _Winner; } }
 
-		public Game(List<PiecePlacement> blackDeployment, List<PiecePlacement> whiteDeployment)
+		public Game()
 		{
 			Black = new Player(PlayerColour.Black);
 			White = new Player(PlayerColour.White);
@@ -46,12 +46,12 @@ namespace Shashkrid
 
 			CurrentTurnPlayer = Black;
 			CurrentTurn = 1;
-			CurrentTurnMoves = 0;
+			CurrentTurnActions = 0;
 			_Winner = null;
 
 			CreateGrid();
-			DeployPieces(blackDeployment, Black);
-			DeployPieces(whiteDeployment, White);
+			DeployPawns(Black);
+			DeployPawns(White);
 		}
 
 		public void NewTurn()
@@ -61,7 +61,7 @@ namespace Shashkrid
 			else
 				CurrentTurnPlayer = Black;
 			CurrentTurn++;
-			CurrentTurnMoves = 0;
+			CurrentTurnActions = 0;
 			foreach (Player player in Players)
 			{
 				foreach (Piece piece in player.Pieces)
@@ -75,8 +75,8 @@ namespace Shashkrid
 			destination.CheckValidity();
 			if (source.Equals(destination))
 				throw new GameException("Tried to move a piece to its current location");
-			if (CurrentTurnMoves >= GameConstants.MovesPerTurn)
-				throw new GameException("You have already performed the maximum number of moves in this turn");
+			if (CurrentTurnActions >= GameConstants.ActionsPerTurn)
+				throw new GameException("You have already performed the maximum number of actions in this turn");
 			Hex sourceHex = GetHex(source);
 			Hex destinationHex = GetHex(destination);
 			Piece attacker = sourceHex.Piece;
@@ -104,37 +104,9 @@ namespace Shashkrid
 			destinationHex.Piece = attacker;
 		}
 
-		public void DropPiece(Position location, PieceTypeIdentifier typeIdentifier)
+		public bool NoActionsLeft()
 		{
-			location.CheckValidity();
-			if (CurrentTurnMoves != 0)
-				throw new GameException("You have already made a move this turn");
-			bool isValid = false;
-			List<Hex> zoneOfControl = GetZoneOfControl(CurrentTurnPlayer);
-			foreach (Hex hex in zoneOfControl)
-			{
-				if (hex.Position.Equals(location))
-				{
-					isValid = true;
-					break;
-				}
-			}
-			if (!isValid)
-				throw new GameException("This hex is not in your zone of control");
-			PieceType type = GameConstants.Pieces[typeIdentifier];
-			if (!CurrentTurnPlayer.Captures.Remove(type))
-				throw new GameException("You have not captured a piece of this type");
-			Hex dropHex = GetHex(location);
-			if (dropHex.Piece != null)
-				throw new GameException("This hex is occupied");
-			Piece piece = new Piece(type, CurrentTurnPlayer);
-			dropHex.Piece = piece;
-			CurrentTurnMoves = GameConstants.MovesPerTurn;
-		}
-
-		public bool NoMovesLeft()
-		{
-			return CurrentTurnMoves >= Math.Min(CurrentTurnPlayer.Pieces.Count, GameConstants.MovesPerTurn);
+			return CurrentTurnActions >= Math.Min(CurrentTurnPlayer.Pieces.Count, GameConstants.ActionsPerTurn);
 		}
 
 		public bool IsAnnihilation()
@@ -199,38 +171,43 @@ namespace Shashkrid
 			}
 		}
 
-		bool IsValidDeploymentPosition(Position position, PlayerColour colour)
+		void DeployPawn(Position position, Player player)
 		{
-			if (colour == PlayerColour.Black)
-				return position.Y < GameConstants.DeploymentYLimit;
-			else
-				return position.Y > GameConstants.DeploymentYLimit;
+			Hex hex = GetHex(position);
+			Piece piece = new Piece(GameConstants.Pieces[PieceTypeIdentifier.Pawn], player);
+			player.Pieces.Add(piece);
+			hex.Piece = piece;
 		}
 
-		void DeployPieces(List<PiecePlacement> deployment, Player player)
+		void DeployPawns(Player player)
 		{
-			Dictionary<PieceTypeIdentifier, int> typeCounts = new Dictionary<PieceTypeIdentifier, int>();
-			foreach (PiecePlacement placement in deployment)
+			int firstRankY;
+			int secondRankY;
+			int secondRankInitialX;
+			int secondRankFinalX;
+			if(player.Colour == PlayerColour.Black)
 			{
-				if(!IsValidDeploymentPosition(placement.Position, player.Colour))
-					throw new GameException("Invalid deployment position");
-				Hex hex = GetHex(placement.Position);
-				if(hex.Piece != null)
-					throw new GameException("Tried to deploy two pieces to the same hex");
-				PieceType type = GameConstants.Pieces[placement.Type];
-				Piece piece = new Piece(type, player);
-				player.Pieces.Add(piece);
-				hex.Piece = piece;
-				typeCounts[placement.Type]++;
+				firstRankY = 2;
+				secondRankY = 1;
+				secondRankInitialX = 6;
+				secondRankFinalX = 12;
 			}
-
-			foreach (var pair in GameConstants.Pieces)
+			else
 			{
-				PieceTypeIdentifier pieceType = pair.Key;
-				int actualCount = typeCounts[pieceType];
-				int expectedCount = pair.Value.Count;
-				if (actualCount != expectedCount)
-					throw new GameException("Player {0} deployed {1} pieces of type {2}, expected {3}", player.Colour, actualCount, pieceType, expectedCount);
+				firstRankY = 6;
+				secondRankY = 7;
+				secondRankInitialX = 0;
+				secondRankFinalX = 6;
+			}
+			for (int x = 0; x < GameConstants.GridSizeX; x++)
+			{
+				Position position = new Position(x, firstRankY);
+				DeployPawn(position, player);
+			}
+			for (int x = secondRankInitialX; x < secondRankFinalX; x++)
+			{
+				Position position = new Position(x, secondRankY);
+				DeployPawn(position, player);
 			}
 		}
 
@@ -242,6 +219,7 @@ namespace Shashkrid
 			{
 				HashSet<Position> map = new HashSet<Position>();
 				GetMovementMap(piece.Hex, piece.Type.Movement, map);
+				piece.Type.FilterMovementMap(piece.Hex.Position, piece.Owner.Colour, map);
 				return map.Contains(hex.Position);
 			}
 		}
@@ -261,12 +239,12 @@ namespace Shashkrid
 
 		int GetAttackSum(Piece attacker, Piece defender)
 		{
-			int attackSum = 0;
+			int attackSum = attacker.Type.Attack;
 			foreach (Hex neighbour in defender.Hex.Neighbours)
 			{
 				Piece piece = neighbour.Piece;
 				if (piece != null && piece != attacker && piece.Owner == attacker.Owner)
-					attackSum += piece.Type.Attack;
+					attackSum += piece.Type.Support;
 			}
 			return attackSum;
 		}
@@ -292,6 +270,8 @@ namespace Shashkrid
 				for (int y = initial; y >= 0 && y < GameConstants.GridSizeY; y += direction)
 				{
 					Position position = new Position(x, y);
+					if (!position.IsValid())
+						break;
 					Hex hex = GetHex(position);
 					Piece piece = hex.Piece;
 					if (piece == null)

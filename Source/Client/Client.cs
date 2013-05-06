@@ -56,7 +56,7 @@ namespace Client
 				{PieceTypeIdentifier.Pawn, "P"},
 				{PieceTypeIdentifier.Martyr, "M"},
 				{PieceTypeIdentifier.Guardian, "G"},
-				{PieceTypeIdentifier.Chariot, "C"},
+				{PieceTypeIdentifier.Lance, "C"},
 				{PieceTypeIdentifier.Serpent, "S"},
 			};
 
