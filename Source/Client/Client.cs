@@ -11,20 +11,16 @@ namespace Client
 	class Client
 	{
 		ClientConfiguration Configuration;
-		ClientMessenger Messenger;
 
 		public Client(ClientConfiguration configuration)
 		{
 			Configuration = configuration;
-			Messenger = null;
 		}
 
 		public void Run()
 		{
 			TcpClient client = new TcpClient();
 			client.Connect(Configuration.Server);
-			Messenger = new ClientMessenger(client.Client, Configuration.Preferences);
-			Messenger.Run();
 			while (true)
 			{
 				Console.Write("> ");
@@ -64,7 +60,6 @@ namespace Client
 			const string genericFiller = "--";
 			const string verticalFillerLeft = "- ";
 			const string verticalFillerRight = " -";
-			const string separatingFiller = "==";
 
 			string space = "";
 			for (int i = 0; i < GameConstants.GridSizeX * 2; i++)
@@ -94,9 +89,7 @@ namespace Client
 					}
 					if (column < GameConstants.GridSizeX)
 					{
-						if (row - 1 == GameConstants.DeploymentYLimit)
-							Write(separatingFiller, boardColour);
-						else if (column == GameConstants.GridSizeX / 2)
+						if (column == GameConstants.GridSizeX / 2)
 							Write(verticalFillerLeft, boardColour);
 						else if (column == GameConstants.GridSizeX / 2 + 1)
 							Write(verticalFillerRight, boardColour);

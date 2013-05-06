@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="ClientConfiguration.cs" />
-    <Compile Include="ClientMessenger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

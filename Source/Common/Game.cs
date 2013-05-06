@@ -102,6 +102,31 @@ namespace Shashkrid
 			attacker.Hex = destinationHex;
 			sourceHex.Piece = null;
 			destinationHex.Piece = attacker;
+			attacker.CanMove = false;
+			CurrentTurnActions++;
+		}
+
+		public void PromotePiece(Position position, PieceTypeIdentifier type)
+		{
+			position.CheckValidity();
+			if (CurrentTurnActions >= GameConstants.ActionsPerTurn)
+				throw new GameException("You may not perform any more actions this turn");
+			Hex hex = GetHex(position);
+			Piece piece = hex.Piece;
+			if (piece == null)
+				throw new GameException("There is no piece to promote, the specified hex is empty");
+			if (piece.Type.Identifier != PieceTypeIdentifier.Pawn)
+				throw new GameException("Only pawns may be promoted");
+			if (!piece.CanMove)
+				throw new GameException("This piece has already been moved this turn and can hence not be promoted");
+			if(type == PieceTypeIdentifier.Pawn)
+				throw new GameException("Invalid promotion identifier");
+			Piece newPiece = new Piece(GameConstants.Pieces[type], CurrentTurnPlayer);
+			hex.Piece = newPiece;
+			newPiece.Hex = hex;
+			newPiece.CanMove = false;
+			piece.Hex = null;
+			CurrentTurnActions++;
 		}
 
 		public bool NoActionsLeft()

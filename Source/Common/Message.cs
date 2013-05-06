@@ -8,7 +8,7 @@ namespace Shashkrid
 	{
 		PlayGame,
 		MovePiece,
-		DropPiece,
+		PromotePiece,
 	}
 
 	public enum ServerToClientMessageType
@@ -17,7 +17,7 @@ namespace Shashkrid
 		GameStarted,
 		NewTurn,
 		PieceMoved,
-		PieceDropped,
+		PiecePromoted,
 		GameEnded,
 	}
 
@@ -31,7 +31,7 @@ namespace Shashkrid
 
 	public abstract class Protocol
 	{
-		public const int Version = 0;
+		public const int Version = 1;
 	}
 
 	[ProtoContract]
@@ -47,7 +47,7 @@ namespace Shashkrid
 		public PieceMove Move;
 
 		[ProtoMember(4, IsRequired = false)]
-		public PieceDrop Drop;
+		public PiecePromotion Promotion;
 
 		public ClientToServerMessage()
 		{
@@ -72,10 +72,10 @@ namespace Shashkrid
 			return message;
 		}
 
-		public static ClientToServerMessage DropPieceMessage(PieceDrop drop)
+		public static ClientToServerMessage PromotePieceMessage(PiecePromotion promotion)
 		{
-			ClientToServerMessage message = new ClientToServerMessage(ClientToServerMessageType.DropPiece);
-			message.Drop = drop;
+			ClientToServerMessage message = new ClientToServerMessage(ClientToServerMessageType.PromotePiece);
+			message.Promotion = promotion;
 			return message;
 		}
 
@@ -100,7 +100,7 @@ namespace Shashkrid
 		public PieceMove Move;
 
 		[ProtoMember(6, IsRequired = false)]
-		public PieceDrop Drop;
+		public PiecePromotion Promotion;
 
 		[ProtoMember(7, IsRequired = false)]
 		public GameOutcome Outcome;
@@ -142,10 +142,10 @@ namespace Shashkrid
 			return message;
 		}
 
-		public static ServerToClientMessage PieceDroppedMessage(PieceDrop drop)
+		public static ServerToClientMessage PiecePromotedMessage(PiecePromotion promotion)
 		{
-			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.PieceDropped);
-			message.Drop = drop;
+			ServerToClientMessage message = new ServerToClientMessage(ServerToClientMessageType.PiecePromoted);
+			message.Promotion = promotion;
 			return message;
 		}
 
@@ -172,24 +172,16 @@ namespace Shashkrid
 		[ProtoMember(4)]
 		public bool WantsBlack;
 
-		[ProtoMember(5)]
-		public List<PiecePlacement> BlackDeployment;
-
-		[ProtoMember(6)]
-		public List<PiecePlacement> WhiteDeployment;
-
 		public PlayerPreferences()
 		{
 		}
 
-		public PlayerPreferences(string playerName, string gameName, bool wantsBlack, List<PiecePlacement> blackPlacements, List<PiecePlacement> whitePlacements)
+		public PlayerPreferences(string playerName, string gameName, bool wantsBlack)
 		{
 			ProtocolVersion = Protocol.Version;
 			PlayerName = playerName;
 			GameName = gameName;
 			WantsBlack = wantsBlack;
-			BlackDeployment = blackPlacements;
-			WhiteDeployment = whitePlacements;
 		}
 	}
 
@@ -214,22 +206,22 @@ namespace Shashkrid
 	}
 
 	[ProtoContract]
-	public class PieceDrop
+	public class PiecePromotion
 	{
 		[ProtoMember(1)]
-		public PieceTypeIdentifier Piece;
+		public Position Position;
 
 		[ProtoMember(2)]
-		public Position Destination;
+		public PieceTypeIdentifier Type;
 
-		public PieceDrop()
+		public PiecePromotion()
 		{
 		}
 
-		public PieceDrop(PieceTypeIdentifier piece, Position destination)
+		public PiecePromotion(Position location, PieceTypeIdentifier promotion)
 		{
-			Piece = piece;
-			Destination = destination;
+			Position = location;
+			Type = promotion;
 		}
 	}
 
@@ -255,17 +247,13 @@ namespace Shashkrid
 		[ProtoMember(1)]
 		public string Name;
 
-		[ProtoMember(2)]
-		public List<PiecePlacement> Deployment;
-
 		public PlayerDescription()
 		{
 		}
 
-		public PlayerDescription(string name, List<PiecePlacement> deployment)
+		public PlayerDescription(string name)
 		{
 			Name = name;
-			Deployment = deployment;
 		}
 	}
 

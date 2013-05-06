@@ -35,8 +35,6 @@ namespace Shashkrid
 		public string PlayerName { get { return Preferences.PlayerName; } }
 		string GameName { get { return Preferences.GameName; } }
 		bool WantsBlack { get { return Preferences.WantsBlack; } }
-		List<PiecePlacement> BlackDeployment { get { return Preferences.BlackDeployment; } }
-		List<PiecePlacement> WhiteDeployment { get { return Preferences.WhiteDeployment; } }
 
 		public ServerClient(Socket socket, Server server)
 			: base(socket)
@@ -61,7 +59,7 @@ namespace Shashkrid
 			MessageHandlers = new Dictionary<ClientToServerMessageType, MessageHandler>();
 			MessageHandlers[ClientToServerMessageType.PlayGame] = OnPlayGame;
 			MessageHandlers[ClientToServerMessageType.MovePiece] = OnMovePiece;
-			MessageHandlers[ClientToServerMessageType.DropPiece] = OnDropPiece;
+			MessageHandlers[ClientToServerMessageType.PromotePiece] = OnPromotePiece;
 		}
 
 		public void SetDefaultState()
@@ -176,16 +174,6 @@ namespace Shashkrid
 				throw new ServerClientException("No game name has been specified");
 			if (preferences.GameName.Length > Server.StringLengthLimit)
 				throw new ServerClientException("The game name exceeds the maximum length of {0}", Server.StringLengthLimit);
-			if (preferences.BlackDeployment == null || preferences.WhiteDeployment == null)
-				throw new ServerClientException("Missing deployment data");
-			try
-			{
-				Game testGame = new Game(preferences.BlackDeployment, preferences.WhiteDeployment);
-			}
-			catch (GameException exception)
-			{
-				throw new ServerClientException(exception.Message);
-			}
 			Preferences = preferences;
 		}
 
@@ -193,19 +181,18 @@ namespace Shashkrid
 		{
 			SetColour();
 			PlayerDescription blackDescription, whiteDescription;
+			Game = new Game();
 			if (Colour == PlayerColour.Black)
 			{
 				Opponent.Colour = PlayerColour.White;
-				Game = new Game(BlackDeployment, Opponent.WhiteDeployment);
-				blackDescription = new PlayerDescription(PlayerName, BlackDeployment);
-				whiteDescription = new PlayerDescription(Opponent.PlayerName, Opponent.WhiteDeployment);
+				blackDescription = new PlayerDescription(PlayerName);
+				whiteDescription = new PlayerDescription(Opponent.PlayerName);
 			}
 			else
 			{
 				Opponent.Colour = PlayerColour.Black;
-				Game = new Game(Opponent.BlackDeployment, WhiteDeployment);
-				blackDescription = new PlayerDescription(Opponent.PlayerName, Opponent.BlackDeployment);
-				whiteDescription = new PlayerDescription(PlayerName, WhiteDeployment);
+				blackDescription = new PlayerDescription(Opponent.PlayerName);
+				whiteDescription = new PlayerDescription(PlayerName);
 			}
 			Opponent.Game = Game;
 			State = ServerClientState.InGame;
@@ -284,24 +271,24 @@ namespace Shashkrid
 			Game.MovePiece(move.Source, move.Destination);
 			ServerToClientMessage moveMessage = ServerToClientMessage.PieceMovedMessage(move);
 			BroadcastMessage(moveMessage);
-			if (Game.NoMovesLeft())
+			if (Game.NoActionsLeft())
 				EndOfTurn();
 		}
 
-		void OnDropPiece(ClientToServerMessage message)
+		void OnPromotePiece(ClientToServerMessage message)
 		{
 			if (State != ServerClientState.InGame)
-				throw new ServerClientException("You tried to drop a piece even though you are not in a game");
+				throw new ServerClientException("You tried to promote a piece even though you are not in a game");
 			if (Game.CurrentPlayer != Colour)
-				throw new ServerClientException("You tried to drop a piece during your opponent's turn");
-			PieceDrop drop = message.Drop;
-			if(drop == null)
-				throw new ServerClientException("No drop has been specified");
-			if (drop.Destination == null)
-				throw new ServerClientException("No destination has been specified");
-			Game.DropPiece(drop.Destination, drop.Piece);
-			ServerToClientMessage dropMessage = ServerToClientMessage.PieceDroppedMessage(drop);
-			BroadcastMessage(dropMessage);
+				throw new ServerClientException("You tried to promote a piece during your opponent's turn");
+			PiecePromotion promotion = message.Promotion;
+			if (promotion == null)
+				throw new ServerClientException("No promotion has been specified");
+			if (promotion.Position == null)
+				throw new ServerClientException("No location has been specified");
+			Game.PromotePiece(promotion.Position, promotion.Type);
+			ServerToClientMessage promotionMessage = ServerToClientMessage.PiecePromotedMessage(promotion);
+			BroadcastMessage(promotionMessage);
 			EndOfTurn();
 		}
 	}
