@@ -121,6 +121,18 @@ namespace Shashkrid
 				throw new GameException("This piece has already been moved this turn and can hence not be promoted");
 			if(type == PieceTypeIdentifier.Pawn)
 				throw new GameException("Invalid promotion identifier");
+			bool isClear = true;
+			foreach (Hex neighbour in hex.Neighbours)
+			{
+				Piece neighbourPiece = neighbour.Piece;
+				if (neighbourPiece != null && !object.ReferenceEquals(neighbourPiece.Owner, CurrentTurnPlayer))
+				{
+					isClear = false;
+					break;
+				}
+			}
+			if (!isClear)
+				throw new GameException("You cannot promote a piece that is in direct proximity of an opponent's piece");
 			Piece newPiece = new Piece(GameConstants.Pieces[type], CurrentTurnPlayer);
 			hex.Piece = newPiece;
 			newPiece.Hex = hex;

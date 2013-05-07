@@ -95,9 +95,14 @@ namespace Shashkrid
 		{
 			foreach (Position position in map)
 			{
-				bool xMovement = position.X != initialPosition.X;
-				bool yMovement = position.Y != initialPosition.Y;
-				if (xMovement && yMovement)
+				int axesUsed = 0;
+				if (position.X != initialPosition.X)
+					axesUsed++;
+				if (position.Y != initialPosition.Y)
+					axesUsed++;
+				if (position.Z != initialPosition.Z)
+					axesUsed++;
+				if (axesUsed > 1)
 					map.Remove(position);
 			}
 		}
