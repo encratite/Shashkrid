@@ -50,6 +50,7 @@
     <Compile Include="GameConstants.cs" />
     <Compile Include="Hex.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="Messenger.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="PiecePlacement.cs" />
     <Compile Include="PieceType.cs" />

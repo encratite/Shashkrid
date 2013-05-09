@@ -8,19 +8,8 @@ using ProtoBuf;
 
 namespace Shashkrid
 {
-	public class MessengerException : Exception
-	{
-		public MessengerException(string message, params object[] parameters) :
-			base(string.Format(message, parameters))
-		{
-		}
-	}
-
 	public abstract class AsynchronousMessenger<IncomingMessageType, OutgoingMessageType>
 	{
-		const int MaximumStreamLength = 1024 * 1024;
-		const int PrefixSize = 4;
-
 		protected Socket Socket;
 
 		byte[] Buffer;
@@ -96,7 +85,9 @@ namespace Shashkrid
 				{
 					int bytesReceived = Socket.EndReceive(result);
 					Stream.Write(Buffer, 0, bytesReceived);
-					ProcessStreamContent();
+					List<IncomingMessageType> messages = Messenger.ReadMessages<IncomingMessageType>(ref Stream);
+					foreach (IncomingMessageType message in messages)
+						OnMessage(message);
 					Receive();
 				}
 				catch (MessengerException exception)
@@ -115,42 +106,6 @@ namespace Shashkrid
 				Socket.EndSend(result);
 				Sending = false;
 				Send();
-			}
-		}
-
-		void ProcessStreamContent()
-		{
-			if (Stream.Length < PrefixSize)
-				return;
-			if (Stream.Length > MaximumStreamLength)
-				throw new MessengerException("Maximum stream length exceeded");
-			Stream.Seek(0, SeekOrigin.Begin);
-			int sizePrefix = 0;
-			for (int i = 0; i < PrefixSize; i++)
-			{
-				sizePrefix <<= 8;
-				sizePrefix |= Stream.ReadByte();
-			}
-			if (sizePrefix > MaximumStreamLength)
-				throw new MessengerException("The size prefix exceeds the maximum stream length");
-			int totalSize = PrefixSize + sizePrefix;
-			if (Stream.Length < totalSize)
-			{
-				Stream.Seek(0, SeekOrigin.End);
-				return;
-			}
-			try
-			{
-				IncomingMessageType message = Serializer.Deserialize<IncomingMessageType>(Stream);
-				MemoryStream newStream = new MemoryStream();
-				newStream.Write(Stream.GetBuffer(), (int)Stream.Position, (int)(Stream.Length - Stream.Position));
-				Stream.Close();
-				Stream = newStream;
-				OnMessage(message);
-			}
-			catch (ProtoException exception)
-			{
-				throw new MessengerException("Deserialisation error: {0}", exception.Message);
 			}
 		}
 	}

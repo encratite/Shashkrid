@@ -102,7 +102,7 @@ namespace Shashkrid
 					axesUsed++;
 				if (position.Z != initialPosition.Z)
 					axesUsed++;
-				if (axesUsed > 1)
+				if (axesUsed!= 2)
 					map.Remove(position);
 			}
 		}

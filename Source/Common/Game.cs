@@ -241,7 +241,7 @@ namespace Shashkrid
 				Position position = new Position(x, firstRankY);
 				DeployPawn(position, player);
 			}
-			for (int x = secondRankInitialX; x < secondRankFinalX; x++)
+			for (int x = secondRankInitialX; x <= secondRankFinalX; x++)
 			{
 				Position position = new Position(x, secondRankY);
 				DeployPawn(position, player);

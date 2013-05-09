@@ -18,12 +18,12 @@ The initial placement of the pieces is the same for every game (each "P" symboli
 1 o--o--o--o--o--o--o--o--o--o--o--o--o 1
   a  b  c  d  e  f  g  h  i  j  k  l  m
 
-Each turn a player is given three action points.
-These may be used to either move pieces or promote pawns to special pieces that can perform more complex moves.
+Each turn a player is given three action points that can be used to perform the following actions:
 1. moving a piece costs one action point
 2. promoting a piece costs one action point
 No piece may be moved more than once per turn.
 A pawn that has not been moved in the current turn and is not being touched by an opponent's piece can be promoted to become a martyr, a guardian, a lance or a serpent.
+These promoted pieces are more powerful than pawns in some ways, although they also have their drawbacks
 A piece that was promoted must not be moved in the same turn.
 A player may only have up to two promoted pieces of the same type at a time.
 They may not perform other promotions of the same type until the pieces in question have been captured by the opponent.
